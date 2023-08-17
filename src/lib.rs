@@ -1,10 +1,36 @@
 use std::collections::HashMap;
 use unicode_segmentation::UnicodeSegmentation;
 
+trait CharTrait {
+    fn to_lower_case(&self) -> Self;
+    fn to_upper_case(&self) -> Self;
+}
+
+impl CharTrait for char {
+    fn to_lower_case(&self) -> char {
+        match self {
+            'A'..='Z' => self.to_ascii_lowercase(),
+            'А'..='Я' => char::from_u32(*self as u32 + 32).unwrap(),
+            'Ё' => char::from_u32(*self as u32 + 80).unwrap(),
+            _ => *self,
+        }
+    }
+
+    fn to_upper_case(&self) -> char {
+        match self {
+            'a'..='z' => self.to_ascii_uppercase(),
+            'а'..='я' => char::from_u32(*self as u32 - 32).unwrap(),
+            'ё' => char::from_u32(*self as u32 - 80).unwrap(),
+            _ => *self,
+        }
+    }
+}
+
 pub struct Key {
     key: String,
     alphabet: String,
-    map: HashMap<char, char>,
+    encode_map: HashMap<char, char>,
+    decode_map: HashMap<char, char>,
 }
 
 impl Key {
@@ -16,9 +42,10 @@ impl Key {
         }
 
         Ok(Self {
-            key: key.to_string(),
+            key: key.to_lowercase(),
             alphabet,
-            map: HashMap::new(),
+            encode_map: HashMap::new(),
+            decode_map: HashMap::new(),
         })
     }
     pub fn new_with_alphabet(key: &str, alphabet: &str) -> Result<Key, String> {
@@ -26,31 +53,38 @@ impl Key {
             return Err("Key and alphabet must have the same length.".to_string());
         }
         Ok(Self {
-            key: key.to_string(),
-            alphabet: alphabet.to_string(),
-            map: HashMap::new(),
+            key: key.to_lowercase(),
+            alphabet: alphabet.to_lowercase(),
+            encode_map: HashMap::new(),
+            decode_map: HashMap::new(),
         })
     }
 
     pub fn encode(&mut self, text: &str) -> String {
-        if self.map.is_empty() {
-            self.map = self.alphabet.chars().zip(self.key.chars()).collect();
+        if self.encode_map.is_empty() {
+            self.encode_map = self.alphabet.chars().zip(self.key.chars()).collect();
         }
 
-        text.chars()
-            .map(|x| *self.map.get(&x).unwrap_or(&x))
-            .collect()
+        self.ciphers(&self.encode_map, text)
     }
 
     pub fn decode(&mut self, text: &str) -> String {
-        if self.map.is_empty() {
-            self.map = self.key.chars().zip(self.alphabet.chars()).collect();
+        if self.decode_map.is_empty() {
+            self.decode_map = self.key.chars().zip(self.alphabet.chars()).collect();
         }
 
+        self.ciphers(&self.decode_map, text)
+    }
+
+    fn ciphers(&self, map: &HashMap<char, char>, text: &str) -> String {
         text.chars()
-            .map(|x| *self.map.get(&x).unwrap_or(&x))
+            .map(|x| {
+                if x.is_lowercase() {
+                    *map.get(&x).unwrap_or(&x)
+                } else {
+                    map.get(&x.to_lower_case()).unwrap_or(&x).to_upper_case()
+                }
+            })
             .collect()
     }
 }
-
-fn main() {}
