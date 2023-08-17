@@ -1,8 +1,10 @@
+use std::collections::HashMap;
 use unicode_segmentation::UnicodeSegmentation;
 
 pub struct Key {
     key: String,
     alphabet: String,
+    map: HashMap<char, char>,
 }
 
 impl Key {
@@ -16,6 +18,7 @@ impl Key {
         Ok(Self {
             key: key.to_string(),
             alphabet,
+            map: HashMap::new(),
         })
     }
     pub fn new_with_alphabet(key: &str, alphabet: &str) -> Result<Key, String> {
@@ -25,11 +28,19 @@ impl Key {
         Ok(Self {
             key: key.to_string(),
             alphabet: alphabet.to_string(),
+            map: HashMap::new(),
         })
     }
 
-    pub fn encode(&self, text: &str) -> Result<String, String> {
-        todo!()
+    pub fn encode(&mut self, text: &str) -> Result<String, String> {
+        if self.map.is_empty() {
+            self.map = self.alphabet.chars().zip(self.key.chars()).collect();
+        }
+
+        Ok(text
+            .chars()
+            .map(|x| *self.map.get(&x).unwrap_or(&x))
+            .collect())
     }
 
     pub fn decode(&self, text: &str) -> Result<String, String> {
