@@ -32,19 +32,24 @@ impl Key {
         })
     }
 
-    pub fn encode(&mut self, text: &str) -> Result<String, String> {
+    pub fn encode(&mut self, text: &str) -> String {
         if self.map.is_empty() {
             self.map = self.alphabet.chars().zip(self.key.chars()).collect();
         }
 
-        Ok(text
-            .chars()
+        text.chars()
             .map(|x| *self.map.get(&x).unwrap_or(&x))
-            .collect())
+            .collect()
     }
 
-    pub fn decode(&self, text: &str) -> Result<String, String> {
-        todo!()
+    pub fn decode(&mut self, text: &str) -> String {
+        if self.map.is_empty() {
+            self.map = self.key.chars().zip(self.alphabet.chars()).collect();
+        }
+
+        text.chars()
+            .map(|x| *self.map.get(&x).unwrap_or(&x))
+            .collect()
     }
 }
 
