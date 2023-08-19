@@ -1,7 +1,6 @@
 use crate::breaker_structs::BreakerInfo;
 use serde::Deserialize;
 use std::fs;
-use unicode_segmentation::UnicodeSegmentation;
 
 #[derive(Deserialize)]
 struct Obj {
@@ -44,7 +43,7 @@ impl Breaker {
 
         Ok(Self {
             alphabet: alphabet.clone(),
-            alphabet_length: alphabet.graphemes(true).count(),
+            alphabet_length: alphabet.chars().count(),
             quadgrams,
             info: BreakerInfo::new(
                 Option::from(alphabet),
