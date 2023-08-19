@@ -1,4 +1,8 @@
+use std::collections::HashMap;
 use std::fmt::{Display, Formatter};
+use std::fs::File;
+use std::io::BufReader;
+use utf8_chars::BufReadCharsExt;
 
 /// Class representing various information of the quadgrams for a given language
 ///
@@ -76,10 +80,10 @@ impl BreakerResult {
         seconds: Option<&f64>,
     ) -> Self {
         Self {
-            ciphertext: ciphertext.unwrap_or(String::new()),
-            plaintext: plaintext.unwrap_or(String::new()),
-            key: key.unwrap_or(String::new()),
-            alphabet: alphabet.unwrap_or(String::new()),
+            ciphertext: ciphertext.unwrap_or_default(),
+            plaintext: plaintext.unwrap_or_default(),
+            key: key.unwrap_or_default(),
+            alphabet: alphabet.unwrap_or_default(),
             fitness: *fitness.unwrap_or(&0.0),
             nbr_keys: *nbr_keys.unwrap_or(&0),
             nbr_rounds: *nbr_rounds.unwrap_or(&0),
@@ -92,5 +96,34 @@ impl BreakerResult {
 impl Display for BreakerResult {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         write!(f, "key = {}", self.key)
+    }
+}
+
+pub struct FileIterator {
+    file: BufReader<File>,
+    trans: HashMap<char, usize>,
+}
+
+impl FileIterator {
+    pub fn new(file_path: &str, alphabet: &str) -> Result<Self, String> {
+        let file = BufReader::new(File::open(file_path).map_err(|e| e.to_string())?);
+        let trans = alphabet
+            .to_lowercase()
+            .chars()
+            .enumerate()
+            .map(|(i, x)| (x, i))
+            .collect();
+        Ok(Self { file, trans })
+    }
+}
+
+impl Iterator for FileIterator {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        match self.file.read_char() {
+            Ok(Some(data)) => Some(self.trans.get(&data).copied().unwrap_or(1)),
+            _ => None,
+        }
     }
 }

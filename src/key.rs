@@ -56,7 +56,7 @@ impl Key {
     ///         ### :param str alphabet: the alphabet to check \
     ///         ### :return: the alphabet in normalized form (i.e., in lower cases)\
     ///         ### :rtype: str
-    fn check_alphabet(alphabet: &str) -> Result<String, String> {
+    pub fn check_alphabet(alphabet: &str) -> Result<String, String> {
         let alphabet = alphabet.to_lowercase();
         let alphabet_chars = alphabet.chars();
 
@@ -106,14 +106,14 @@ impl Key {
         Ok(key)
     }
 
-    ///Converts a string to upper case in a safe way
-    ///<br/><br/>
-    ///Reason for this function is the German "ß". \
-    ///Problem: "ß".upper() results in "SS" which corrupts the xcoding translation \
-    ///table. Therefore in such a case the character is simply taken as it is and \
-    ///is not converted.
-    ///<br/>
-    ///### :Example:
+    /// Converts a string to upper case in a safe way
+    /// <br/><br/>
+    /// Reason for this function is the German "ß". \
+    /// Problem: "ß".upper() results in "SS" which corrupts the xcoding translation \
+    /// table. Therefore in such a case the character is simply taken as it is and \
+    /// is not converted.
+    /// <br/>
+    /// ### :Example:
     ///        "Viele Grüße".upper() results in "VIELE GRÜSSE"
     ///        _upper("Viele Grüße") results in "VIELE GRÜßE"
     ///
