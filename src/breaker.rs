@@ -1,7 +1,6 @@
 use crate::{
     breaker_structs::{BreakerInfo, FileIterator},
     key::Key,
-    traits::OptionToResult,
 };
 use std::f64::consts::E;
 use std::fs::{self, File};
@@ -73,10 +72,10 @@ impl Breaker {
 
         let mut iterator = FileIterator::new(carpus_path, &alphabet)?;
 
-        let mut quadgram_val = iterator.next().map_none("Some error".to_string())?;
+        let mut quadgram_val = iterator.next().ok_or(Err("Some error"))?;
 
-        quadgram_val = (quadgram_val << 5) + iterator.next().map_none("Some error".to_string())?;
-        quadgram_val = (quadgram_val << 5) + iterator.next().map_none("Some error".to_string())?;
+        quadgram_val = (quadgram_val << 5) + iterator.next().ok_or(Err("Some error"))?;
+        quadgram_val = (quadgram_val << 5) + iterator.next().ok_or(Err("Some error"))?;
 
         let mut quadgrams = vec![0.0; 32 * 32 * 32 * 32];
 

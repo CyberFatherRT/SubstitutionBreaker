@@ -22,19 +22,3 @@ impl CharTrait for char {
         }
     }
 }
-
-pub trait OptionToResult<T, E> {
-    fn map_none(&self, value: E) -> Result<T, E>;
-}
-
-impl<T, E> OptionToResult<T, E> for Option<T>
-where
-    T: Copy,
-{
-    fn map_none(&self, value: E) -> Result<T, E> {
-        match self {
-            None => Err(value),
-            Some(x) => Ok(*x),
-        }
-    }
-}
